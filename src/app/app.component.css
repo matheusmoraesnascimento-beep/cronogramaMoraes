@@ -1,0 +1,43 @@
+.container {
+  padding: 16px;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.study-card {
+  border-top: 4px solid #3b82f6; // azul
+}
+
+.review-card {
+  border-top: 4px solid #16a34a; // verde
+}
+
+.general-review-card {
+  border-top: 4px solid #f97316; // laranja
+  background: #fff7ed;
+}
+
+.study-title {
+  color: #3b82f6;
+}
+
+.review-title {
+  color: #16a34a;
+}
+
+.general-review-title {
+  color: #f97316;
+}
+.topic-icon {
+  font-size: 18px;
+  color: #3f51b5;
+}
+
+.line-through {
+  text-decoration: line-through;
+}

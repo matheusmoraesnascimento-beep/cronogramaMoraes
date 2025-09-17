@@ -1,0 +1,69 @@
+<mat-toolbar color="primary">
+  <span>Cronograma de Estudos -  Matheus Moraes</span>
+</mat-toolbar>
+
+<div class="container">
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let cycle of studyPlan">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ cycle.title }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <!-- Semanas dentro de cada ciclo -->
+      <mat-accordion multi>
+        <mat-expansion-panel *ngFor="let week of cycle.weeks; let wi = index">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Semana {{ wi + 1 }} - {{ week.title }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <!-- Dias da semana -->
+          <div class="days-grid">
+            <mat-card *ngFor="let day of week.days"
+                      [ngClass]="{
+                        'study-card': day.type === 'study',
+                        'review-card': day.type === 'review',
+                        'general-review-card': day.type === 'general-review' || day.type === 'catch-up'
+                      }">
+              <mat-card-header>
+                <mat-card-title>
+                  {{ day.day }} ({{ day.duration }})
+                </mat-card-title>
+                <mat-card-subtitle [ngClass]="{
+                  'study-title': day.type === 'study',
+                  'review-title': day.type === 'review',
+                  'general-review-title': day.type === 'general-review' || day.type === 'catch-up'
+                }">
+                  {{ day.macroTopic }}
+                </mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <mat-list>
+                  <mat-list-item *ngFor="let topic of day.microTopics">
+                    <span class="list-item-content" [class.line-through]="day.status === 'completed'">
+                      <mat-icon class="topic-icon">chevron_right</mat-icon>
+                      {{ topic }}
+                    </span>
+                  </mat-list-item>
+                </mat-list>
+              </mat-card-content>
+
+              <mat-divider></mat-divider>
+
+              <mat-card-actions>
+                <mat-checkbox [checked]="day.status === 'completed'"
+                              (change)="toggleStatus(day)">
+                  Concluir
+                </mat-checkbox>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
