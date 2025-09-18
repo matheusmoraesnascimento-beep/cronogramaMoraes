@@ -1,9 +1,14 @@
 <mat-toolbar color="primary">
-  <span>Cronograma de Estudos -  Matheus Moraes</span>
+  <span>Cronograma de Estudos - Matheus Moraes</span>
 </mat-toolbar>
 
 <div class="container">
-  <mat-accordion multi>
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <span class="loading-text">Carregando cronograma...</span>
+  </div>
+
+  <mat-accordion *ngIf="!loading" multi>
     <mat-expansion-panel *ngFor="let cycle of studyPlan">
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -11,16 +16,14 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <!-- Semanas dentro de cada ciclo -->
       <mat-accordion multi>
         <mat-expansion-panel *ngFor="let week of cycle.weeks; let wi = index">
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Semana {{ wi + 1 }} - {{ week.title }} 
+              Semana {{ wi + 1 }} - {{ week.title }}
             </mat-panel-title>
           </mat-expansion-panel-header>
 
-          <!-- Dias da semana -->
           <div class="days-grid">
             <mat-card *ngFor="let day of week.days"
                       [ngClass]="{
@@ -66,4 +69,10 @@
       </mat-accordion>
     </mat-expansion-panel>
   </mat-accordion>
+
+  <div *ngIf="!loading" class="reset-button-container">
+    <button mat-raised-button color="warn" (click)="resetStudyPlan()">
+      Resetar Cronograma
+    </button>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -7,6 +7,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+
+// Firebase imports
+import { Firestore, collection, doc, setDoc, getDoc, updateDoc, DocumentReference } from '@angular/fire/firestore';
 
 interface StudyDay {
   day: string;
@@ -27,6 +32,12 @@ interface StudyCycle {
   weeks: StudyWeek[];
 }
 
+interface StudyPlanDocument {
+  id: string;
+  studyPlan: StudyCycle[];
+  lastUpdated: Date;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -38,14 +49,24 @@ interface StudyCycle {
     MatCheckboxModule,
     MatListModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-studyPlan: StudyCycle[] = [
+export class AppComponent implements OnInit {
+  private firestore = inject(Firestore);
+  private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
+
+  studyPlan: StudyCycle[] = [];
+  loading = false;
+  private readonly DOCUMENT_ID = 'matheus-study-plan';
+
+  private readonly defaultStudyPlan: StudyCycle[] = [
     {
       title: 'Ciclo 1: Governança, Segurança e Engenharia de Software',
       weeks: [
@@ -157,7 +178,93 @@ studyPlan: StudyCycle[] = [
       ]
     }
   ];
-  toggleStatus(day: StudyDay): void {
+
+  async ngOnInit() {
+    console.log('Component initialized');
+    await this.loadStudyPlan();
+  }
+
+  async loadStudyPlan() {
+    console.log('Loading study plan...');
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    try {
+      const studyPlanRef = doc(this.firestore, 'study-plans', this.DOCUMENT_ID);
+      const docSnap = await getDoc(studyPlanRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data() as StudyPlanDocument;
+        this.studyPlan = data.studyPlan;
+        this.showMessage('Cronograma carregado com sucesso!');
+        console.log('Data loaded from Firebase');
+      } else {
+        // Se não existe, cria o documento inicial
+        await this.saveStudyPlan(this.defaultStudyPlan);
+        this.studyPlan = this.defaultStudyPlan;
+        this.showMessage('Cronograma inicial criado no Firebase!');
+        console.log('Created initial data');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar cronograma:', error);
+      this.studyPlan = this.defaultStudyPlan;
+      this.showMessage('Erro ao carregar dados. Usando cronograma padrão.', 'error');
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async toggleStatus(day: StudyDay): Promise<void> {
+    const previousStatus = day.status;
     day.status = day.status === 'pending' ? 'completed' : 'pending';
+    this.cdr.detectChanges();
+
+    try {
+      await this.saveStudyPlan(this.studyPlan);
+      const statusText = day.status === 'completed' ? 'concluída' : 'pendente';
+      this.showMessage(`Tarefa marcada como ${statusText}!`);
+    } catch (error) {
+      // Reverte a mudança em caso de erro
+      day.status = previousStatus;
+      this.cdr.detectChanges();
+      console.error('Erro ao salvar status:', error);
+      this.showMessage('Erro ao salvar alteração!', 'error');
+    }
+  }
+
+  private async saveStudyPlan(studyPlan: StudyCycle[]): Promise<void> {
+    const studyPlanData: StudyPlanDocument = {
+      id: this.DOCUMENT_ID,
+      studyPlan: studyPlan,
+      lastUpdated: new Date()
+    };
+
+    const studyPlanRef = doc(this.firestore, 'study-plans', this.DOCUMENT_ID);
+    await setDoc(studyPlanRef, studyPlanData);
+  }
+
+  private showMessage(message: string, type: 'success' | 'error' = 'success'): void {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 3000,
+      panelClass: type === 'error' ? 'error-snackbar' : 'success-snackbar'
+    });
+  }
+
+  // Método para resetar o cronograma (útil para testes)
+  async resetStudyPlan(): Promise<void> {
+    try {
+      this.loading = true;
+      this.cdr.detectChanges();
+      await this.saveStudyPlan(this.defaultStudyPlan);
+      this.studyPlan = [...this.defaultStudyPlan];
+      this.showMessage('Cronograma resetado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao resetar cronograma:', error);
+      this.showMessage('Erro ao resetar cronograma!', 'error');
+    } finally {
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
   }
 }
