@@ -1,4 +1,4 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="tituloPagina">
   <span>Cronograma de Estudos - Matheus Moraes</span>
 </mat-toolbar>
 
@@ -11,30 +11,23 @@
   <mat-accordion *ngIf="!loading" multi>
     <mat-expansion-panel *ngFor="let cycle of studyPlan">
       <mat-expansion-panel-header>
-        <mat-panel-title>
-          {{ cycle.title }}
-        </mat-panel-title>
+        <mat-panel-title>{{ cycle.title }}</mat-panel-title>
       </mat-expansion-panel-header>
 
       <mat-accordion multi>
         <mat-expansion-panel *ngFor="let week of cycle.weeks; let wi = index">
           <mat-expansion-panel-header>
-            <mat-panel-title>
-              Semana {{ wi + 1 }} - {{ week.title }}
-            </mat-panel-title>
+            <mat-panel-title>Semana {{ wi + 1 }} - {{ week.title }}</mat-panel-title>
           </mat-expansion-panel-header>
 
           <div class="days-grid">
-            <mat-card *ngFor="let day of week.days"
-                      [ngClass]="{
+            <mat-card *ngFor="let day of week.days" [ngClass]="{
                         'study-card': day.type === 'study',
                         'review-card': day.type === 'review',
                         'general-review-card': day.type === 'general-review' || day.type === 'catch-up'
                       }">
               <mat-card-header>
-                <mat-card-title>
-                  {{ day.day }} ({{ day.duration }})
-                </mat-card-title>
+                <mat-card-title>{{ day.day }} ({{ day.duration }})</mat-card-title>
                 <mat-card-subtitle [ngClass]="{
                   'study-title': day.type === 'study',
                   'review-title': day.type === 'review',
@@ -44,23 +37,35 @@
                 </mat-card-subtitle>
               </mat-card-header>
 
-              <mat-card-content>
-                <mat-list>
-                  <mat-list-item *ngFor="let topic of day.microTopics">
-                    <span class="list-item-content" [class.line-through]="day.status === 'completed'">
-                      <mat-icon class="topic-icon">chevron_right</mat-icon>
-                      {{ topic }}
-                    </span>
-                  </mat-list-item>
-                </mat-list>
-              </mat-card-content>
+<mat-card-content>
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let topic of day.microTopics">
+      <mat-expansion-panel-header>
+        <mat-panel-title [class.line-through]="day.status === 'completed'">
+          <mat-icon class="topic-icon">chevron_right</mat-icon>
+          {{ topic.title }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <mat-form-field appearance="outline" class="notes-field">
+        <mat-label>Suas Anotações</mat-label>
+        <textarea matInput
+                  cdkTextareaAutosize
+                  cdkAutosizeMinRows="3"
+                  cdkAutosizeMaxRows="10"
+                  [(ngModel)]="topic.content"
+                  (blur)="onContentChange()">
+        </textarea>
+      </mat-form-field>
+    </mat-expansion-panel>
+  </mat-accordion>
+</mat-card-content>
 
               <mat-divider></mat-divider>
 
               <mat-card-actions>
-                <mat-checkbox [checked]="day.status === 'completed'"
-                              (change)="toggleStatus(day)">
-                  Concluir
+                <mat-checkbox [checked]="day.status === 'completed'" (change)="toggleStatus(day)">
+                  Concluir Dia
                 </mat-checkbox>
               </mat-card-actions>
             </mat-card>

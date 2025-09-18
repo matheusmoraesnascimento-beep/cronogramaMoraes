@@ -1,7 +1,12 @@
 .container {
   padding: 16px;
 }
-
+.tituloPagina {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  justify-content: center;
+}
 .days-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -10,15 +15,15 @@
 }
 
 .study-card {
-  border-top: 4px solid #3b82f6; // azul
+  border-top: 4px solid #3b82f6;
 }
 
 .review-card {
-  border-top: 4px solid #16a34a; // verde
+  border-top: 4px solid #16a34a;
 }
 
 .general-review-card {
-  border-top: 4px solid #f97316; // laranja
+  border-top: 4px solid #f97316;
   background: #fff7ed;
 }
 
@@ -40,4 +45,8 @@
 
 .line-through {
   text-decoration: line-through;
+}
+
+.reset-button-container{
+  margin-top: 1%;
 }
