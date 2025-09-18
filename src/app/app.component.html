@@ -3,11 +3,13 @@
 </mat-toolbar>
 
 <div class="container">
+  <!-- Seção de Carregamento (Spinner) -->
   <div *ngIf="loading" class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
     <span class="loading-text">Carregando cronograma...</span>
   </div>
 
+  <!-- Conteúdo Principal do Cronograma -->
   <mat-accordion *ngIf="!loading" multi>
     <mat-expansion-panel *ngFor="let cycle of studyPlan">
       <mat-expansion-panel-header>
@@ -37,29 +39,29 @@
                 </mat-card-subtitle>
               </mat-card-header>
 
-<mat-card-content>
-  <mat-accordion multi>
-    <mat-expansion-panel *ngFor="let topic of day.microTopics">
-      <mat-expansion-panel-header>
-        <mat-panel-title [class.line-through]="day.status === 'completed'">
-          <mat-icon class="topic-icon">chevron_right</mat-icon>
-          {{ topic.title }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+              <mat-card-content>
+                <mat-accordion multi>
+                  <mat-expansion-panel *ngFor="let topic of day.microTopics">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title [class.line-through]="day.status === 'completed'">
+                        <mat-icon class="topic-icon">chevron_right</mat-icon>
+                        {{ topic.title }}
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
 
-      <mat-form-field appearance="outline" class="notes-field">
-        <mat-label>Suas Anotações</mat-label>
-        <textarea matInput
-                  cdkTextareaAutosize
-                  cdkAutosizeMinRows="3"
-                  cdkAutosizeMaxRows="10"
-                  [(ngModel)]="topic.content"
-                  (blur)="onContentChange()">
-        </textarea>
-      </mat-form-field>
-    </mat-expansion-panel>
-  </mat-accordion>
-</mat-card-content>
+                    <mat-form-field appearance="outline" class="notes-field">
+                      <mat-label>Suas Anotações</mat-label>
+                      <textarea matInput
+                                cdkTextareaAutosize
+                                cdkAutosizeMinRows="3"
+                                cdkAutosizeMaxRows="10"
+                                [(ngModel)]="topic.content"
+                                (blur)="onContentChange()">
+                      </textarea>
+                    </mat-form-field>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </mat-card-content>
 
               <mat-divider></mat-divider>
 
@@ -75,9 +77,5 @@
     </mat-expansion-panel>
   </mat-accordion>
 
-  <div *ngIf="!loading" class="reset-button-container">
-    <button mat-raised-button color="warn" (click)="resetStudyPlan()">
-      Resetar Cronograma
-    </button>
-  </div>
+  <!-- A seção do botão de Reset foi removida daqui -->
 </div>
